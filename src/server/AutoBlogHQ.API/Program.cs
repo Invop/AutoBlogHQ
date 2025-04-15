@@ -1,23 +1,35 @@
 using AutoBlogHQ.API;
+using AutoBlogHQ.API.Auth;
+using AutoBlogHQ.API.Endpoints;
+using AutoBlogHQ.Application;
 using AutoBlogHQ.Application.Database;
 using AutoBlogHQ.Application.Models;
 using Microsoft.AspNetCore.Identity;
-using AutoBlogHQ.Application;
-using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.Configure<DataProtectionTokenProviderOptions>(
+    x => x.TokenLifespan = TimeSpan.FromMinutes(15));
 
-builder.Services.AddAuthorization();
 builder.Services.AddAuthentication().AddCookie(IdentityConstants.ApplicationScheme);
+builder.Services.AddAuthorization(x =>
+{
+    x.AddPolicy(AuthConstants.AdminUserPolicyName,
+        p => p.RequireClaim(AuthConstants.AdminUserClaimName, "true"));
+});
+builder.Services.Configure<IdentityOptions>(options => { options.SignIn.RequireConfirmedEmail = false; });
+
 builder.Services.AddIdentityCore<ApplicationUser>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
-    .AddApiEndpoints();
+    .AddApiEndpoints()
+    .AddPasswordlessLoginTokenProvider();
 
-builder.Services.AddDatabase(builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException());
+// builder.Services.AddTransient(typeof(IEmailSender<>), typeof(CustomMessageEmailSender<>));
+// builder.Services.AddTransient<IEmailSender, LoggingEmailSender>();
 
-builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+builder.Services.AddDatabase(builder.Configuration.GetConnectionString("DefaultConnection") ??
+                             throw new InvalidOperationException());
+
 builder.Services.AddOpenApi();
 builder.Services.AddSwaggerGen();
 
@@ -36,24 +48,18 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
     app.UseSwagger();
     app.UseSwaggerUI();
-    app.ApplyMigrations();
 }
 
+app.ApplyMigrations();
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapControllers();
 
 app.MapFallbackToFile("/index.html");
-app.MapGroup("/identity").MapIdentityApi<ApplicationUser>();
-app.MapPost("/identity/logout", async (SignInManager<ApplicationUser> signInManager,
-        [FromBody] object? empty) =>
-    {
-        if (empty == null) return Results.Unauthorized();
-        await signInManager.SignOutAsync();
-        return Results.Ok();
-    })
-    .WithOpenApi()
-    .RequireAuthorization();
+await app.CreateDefaultAuthorAsync(builder.Configuration);
+
+
+app.MapApiEndpoints();
 app.Run();
