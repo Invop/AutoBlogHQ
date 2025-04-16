@@ -9,6 +9,7 @@ public static class ApiEndpoints
         public const string IdentityBase = $"/{ApiBase}/identity";
         public const string PasswordlessLogin = $"{IdentityBase}/passwordless/login";
         public const string VerifyPasswordlessLogin = $"{IdentityBase}/passwordless/verify";
+        public const string ResendPasswordlessLogin = $"{IdentityBase}/passwordless/resend";
         public const string Logout = $"{IdentityBase}/logout";
     }
 }

@@ -8,8 +8,8 @@ using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.Configure<DataProtectionTokenProviderOptions>(
-    x => x.TokenLifespan = TimeSpan.FromMinutes(15));
+builder.Services.Configure<PasswordlessLoginTokenProviderOptions>(
+    x => x.TokenLifespan = TimeSpan.FromMinutes(5));
 
 builder.Services.AddAuthentication().AddCookie(IdentityConstants.ApplicationScheme);
 builder.Services.AddAuthorization(x =>
@@ -22,7 +22,7 @@ builder.Services.Configure<IdentityOptions>(options => { options.SignIn.RequireC
 builder.Services.AddIdentityCore<ApplicationUser>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddApiEndpoints()
-    .AddPasswordlessLoginTokenProvider();
+    .AddPasswordlessLoginTotpTokenProvider();
 
 // builder.Services.AddTransient(typeof(IEmailSender<>), typeof(CustomMessageEmailSender<>));
 // builder.Services.AddTransient<IEmailSender, LoggingEmailSender>();

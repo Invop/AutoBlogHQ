@@ -13,7 +13,7 @@ public static class VerifyPasswordlessLoginEndpoint
         app.MapPost(ApiEndpoints.AdditionalIdentityEndpoints.VerifyPasswordlessLogin,
                 async Task<Results<Ok<string>, BadRequest<string>, UnauthorizedHttpResult>> (
                     [FromBody] VerifyPasswordLessCodeRequest request,
-                    [FromQuery] bool? rememberMe, // New query param for session persistence
+                    [FromQuery] bool? rememberMe,
                     [FromServices] IServiceProvider sp) =>
                 {
                     var userManager = sp.GetRequiredService<UserManager<ApplicationUser>>();
@@ -28,18 +28,17 @@ public static class VerifyPasswordlessLoginEndpoint
 
                     var isValid = await userManager.VerifyUserTokenAsync(
                         user,
-                        "PasswordlessLoginProvider",
+                        "PasswordlessLoginTotpProvider",
                         "passwordless-auth",
                         request.Code);
 
                     if (!isValid)
                         return TypedResults.Unauthorized();
 
-                    // Always use cookie authentication scheme
+                    await userManager.UpdateSecurityStampAsync(user);
                     signInManager.AuthenticationScheme = IdentityConstants.ApplicationScheme;
 
-                    // Sign in the user with persistence based on rememberMe
-                    var isPersistent = rememberMe == true; // Defaults to false if not provided
+                    var isPersistent = rememberMe == true;
                     await signInManager.SignInAsync(user, isPersistent);
 
                     return TypedResults.Ok("Signed in successfully");

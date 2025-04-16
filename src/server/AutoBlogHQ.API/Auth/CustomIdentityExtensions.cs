@@ -4,10 +4,10 @@ namespace AutoBlogHQ.API.Auth;
 
 public static class CustomIdentityExtensions
 {
-    public static IdentityBuilder AddPasswordlessLoginTokenProvider(this IdentityBuilder builder)
+    public static IdentityBuilder AddPasswordlessLoginTotpTokenProvider(this IdentityBuilder builder)
     {
         var userType = builder.UserType;
-        var provider = typeof(PasswordlessLoginTokenProvider<>).MakeGenericType(userType);
-        return builder.AddTokenProvider("PasswordlessLoginProvider", provider);
+        var totpProvider = typeof(PasswordlessLoginTotpTokenProvider<>).MakeGenericType(userType);
+        return builder.AddTokenProvider("PasswordlessLoginTotpProvider", totpProvider);
     }
 }
