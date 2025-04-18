@@ -1,6 +1,73 @@
-@AutoBlogHQ.API_HostAddress = http://localhost:5097
+### Test Register Endpoint with Valid Data
+POST https://localhost:7220/api/identity/register
+Content-Type: application/json
 
-GET {{AutoBlogHQ.API_HostAddress}}/weatherforecast/
-Accept: application/json
+{
+  "userName": "TestUser123",
+  "email": "testuser123@example.com",
+  "password": "Test@1234"
+}
 
-###
+
+### Test Register Endpoint with Empty UserName
+POST https://localhost:7220/api/identity/send-confirmation-email/
+Content-Type: application/json
+
+{
+  "email": "testuser123@example.com"
+}
+
+
+### Test Register Endpoint with Invalid Email Format
+POST https://localhost:7220/api/identity/register
+Content-Type: application/json
+
+{
+  "userName": "ValidUser",
+  "email": "invalidemail.com",
+  "password": "Test@1234"
+}
+
+
+### Test Register Endpoint with Weak Password (no special character)
+POST https://localhost:7220/api/identity/register
+Content-Type: application/json
+
+{
+  "userName": "ValidUser",
+  "email": "validemail@example.com",
+  "password": "Test1234"
+}
+
+
+### Test Register Endpoint with Weak Password (less than 6 characters)
+POST https://localhost:7220/api/identity/register
+Content-Type: application/json
+
+{
+  "userName": "ValidUser",
+  "email": "validemail@example.com",
+  "password": "Tes@1"
+}
+
+
+### Test Register Endpoint with Duplicate Username
+POST https://localhost:7220/api/identity/register
+Content-Type: application/json
+
+{
+  "userName": "ExistingUser",
+  "email": "newemail@example.com",
+  "password": "Test@1234"
+}
+
+
+### Test Register Endpoint with Duplicate Email
+POST https://localhost:7220/api/identity/register
+Content-Type: application/json
+
+{
+  "userName": "UniqueUser",
+  "email": "existingemail@example.com",
+  "password": "Test@1234"
+}
