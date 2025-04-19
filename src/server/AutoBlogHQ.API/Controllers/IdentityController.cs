@@ -283,7 +283,7 @@ public class IdentityController : ControllerBase
 
     [Authorize]
     [HttpPut(ApiEndpoints.IdentityEndpoints.ChangePassword)]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ValidationFailureResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -306,7 +306,7 @@ public class IdentityController : ControllerBase
             ));
 
         _logger.LogInformation("Password changed successfully for user {Id}", user.Id);
-        return NoContent();
+        return Ok();
     }
 
     #endregion
